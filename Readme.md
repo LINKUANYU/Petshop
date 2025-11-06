@@ -3,7 +3,7 @@ This project is a petshop website for pratice my software engineer skill.
 # PetShop (MVP)
 Day 1：最小骨架。FastAPI 回傳 `frontend/public/index.html`。
 
-# Develope
+# Develop
 ```bash
 cd backend
 python -m venv .venv
