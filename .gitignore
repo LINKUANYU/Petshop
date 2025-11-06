@@ -1,0 +1,11 @@
+# python
+.venv/
+__pucache__/
+*.pyc
+
+# Env
+.env
+.env.*
+
+# OS 
+.DS_Store
