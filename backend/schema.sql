@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS categories (
 ) ENGINE=InnoDB;
 
 -- 產品
--- TINYINT(1) means only 1 or 0, 1 means active, 0 means deactive
+-- TINYINT means only 1 or 0, 1 means active, 0 means deactive
 CREATE TABLE IF NOT EXISTS products (
   id INT AUTO_INCREMENT PRIMARY KEY,
   brands_id INT NOT NULL,
