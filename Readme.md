@@ -8,7 +8,7 @@ Day 1：最小骨架。FastAPI 回傳 `frontend/public/index.html`。
 cd backend
 python3.12 -m venv .venv
 source .venv/bin/activate
-(pip install -r requirement.txt)
+pip install -r requirements.txt
 python -m uvicorn main:app --reload
 
 
