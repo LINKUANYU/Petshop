@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS brands (
   name VARCHAR(191) NOT NULL,
   slug VARCHAR(191) NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE KEY uk_brands_name (name),
+  CREATE INDEX idx_brands_name ON brands(name),
   UNIQUE KEY uk_brands_slug (slug)
 ) ENGINE=InnoDB;
 

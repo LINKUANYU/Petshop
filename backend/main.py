@@ -32,7 +32,7 @@ def get_conn():
 # 型別設定
 @app.get("/api/products")
 def list_product(
-    page: int = Query(1, le=1),
+    page: int = Query(1, ge=1),
     page_size: int = Query(3, ge=1, le=6),
     q: str | None = Query(None)
 ):
