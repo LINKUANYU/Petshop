@@ -20,24 +20,76 @@ CATEGORIES = [
     # (name, slug, parent_slug)
     ("Dog", "dog", None),
     ("Dog Food", "dog-food", "dog"),
+    ("Dog Dry Food", "dog-dry-food", "dog-food"),
+    ("Dog Wet Food", "dog-wet-food", "dog-food"),
+
     ("Cat", "cat", None),
     ("Cat Food", "cat-food", "cat"),
+    ("Cat Dry Food", "cat-dry-food", "cat-food"),
+    ("Cat Wet Food", "cat-wet-food", "cat-food"),
 ]
 
 PRODUCTS = [
     # (name, slug, brand_slug, category_slug, description)
-    ("Orijen Original Dog Food", "orijen-original-dog", "orijen", "dog-food",
+    # Orijen
+    ("Orijen Original Dog Food", "orijen-original-dog", "orijen", "dog-dry-food",
      "High-protein, grain-free dry dog food."),
-    ("Royal Canin Indoor Cat", "royal-canin-indoor-cat", "royal-canin", "cat-food",
+    ("Orijen Six Fish Cat Food", "orijen-six-fish-cat", "orijen", "cat-dry-food",
+     "Grain-free dry cat food with six fish recipe."),
+
+    # Royal Canin
+    ("Royal Canin Indoor Cat", "royal-canin-indoor-cat", "royal-canin", "cat-dry-food",
      "Dry cat food for adult indoor cats."),
+    ("Royal Canin Medium Adult Dog", "royal-canin-medium-adult-dog", "royal-canin", "dog-dry-food",
+     "Balanced dry food for medium adult dogs."),
+
+    # Hill's
+    ("Hill's Science Diet Adult Dog Chicken & Barley", "hills-adult-dog-chicken", "hills-science-diet", "dog-dry-food",
+     "Dry dog food with chicken & barley for adult dogs."),
+    ("Hill's Science Diet Adult Indoor Cat", "hills-indoor-cat", "hills-science-diet", "cat-dry-food",
+     "Dry cat food formulated for indoor cats."),
+
+    # Wellness
+    ("Wellness CORE Grain-Free Dog Food", "wellness-core-dog", "wellness", "dog-dry-food",
+     "Grain-free dry dog food focused on protein-rich nutrition."),
+    ("Wellness Complete Health Indoor Cat", "wellness-complete-health-indoor-cat", "wellness", "cat-dry-food",
+     "Dry cat food tailored for indoor cats."),
 ]
+
 
 VARIANTS = [
     # (product_slug, sku, option_text, price_cents, list_price_cents, weight_g, stock_qty)
+    # Orijen Original Dog
     ("orijen-original-dog", "ORJ-ODF-1_5KG", "1.5kg", 1299*100, 1499*100, 1500, 20),
     ("orijen-original-dog", "ORJ-ODF-7KG",   "7kg",   2899*100, 3199*100, 7000, 10),
-    ("royal-canin-indoor-cat", "RCN-IC-1_5KG", "1.5kg", 899*100, 1099*100, 1500, 25),
+
+    # Orijen Six Fish Cat
+    ("orijen-six-fish-cat", "ORJ-SF-1_5KG", "1.5kg", 1099*100, 1299*100, 1500, 18),
+    ("orijen-six-fish-cat", "ORJ-SF-4KG",   "4kg",   2499*100, 2799*100, 4000, 9),
+
+    # Royal Canin Indoor Cat
+    ("royal-canin-indoor-cat", "RCN-IC-1_5KG", "1.5kg",  899*100, 1099*100, 1500, 25),
     ("royal-canin-indoor-cat", "RCN-IC-7KG",   "7kg",   2399*100, 2699*100, 7000, 8),
+
+    # Royal Canin Medium Adult Dog
+    ("royal-canin-medium-adult-dog", "RCN-MED-1_5KG", "1.5kg", 1199*100, 1399*100, 1500, 16),
+    ("royal-canin-medium-adult-dog", "RCN-MED-7KG",   "7kg",   2699*100, 2999*100, 7000, 7),
+
+    # Hill's Adult Dog Chicken
+    ("hills-adult-dog-chicken", "HIL-ADOG-1_5KG", "1.5kg", 1099*100, 1299*100, 1500, 22),
+    ("hills-adult-dog-chicken", "HIL-ADOG-7KG",   "7kg",   2599*100, 2899*100, 7000, 9),
+
+    # Hill's Indoor Cat
+    ("hills-indoor-cat", "HIL-ICAT-1_5KG", "1.5kg",  999*100, 1199*100, 1500, 24),
+    ("hills-indoor-cat", "HIL-ICAT-4KG",   "4kg",   2199*100, 2499*100, 4000, 11),
+
+    # Wellness CORE Dog
+    ("wellness-core-dog", "WEL-CORE-1_5KG", "1.5kg", 1399*100, 1599*100, 1500, 15),
+    ("wellness-core-dog", "WEL-CORE-7KG",   "7kg",   2999*100, 3299*100, 7000, 6),
+
+    # Wellness Complete Health Indoor Cat
+    ("wellness-complete-health-indoor-cat", "WEL-CHI-1_5KG", "1.5kg",  949*100, 1149*100, 1500, 21),
+    ("wellness-complete-health-indoor-cat", "WEL-CHI-4KG",   "4kg",   2099*100, 2399*100, 4000, 10),
 ]
 
 def main():
