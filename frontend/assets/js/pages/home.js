@@ -19,9 +19,11 @@
 
 function renderCard(p){
     const price = (p.price != null) ? `NT$ ${p.price}` : "";
+    const imgkey = p.img;
+    const imgsrc = imgkey ? `/static/${imgkey}`: `/static/search.png`;
     return `
         <article class="card">
-            <div class="thumb"></div>
+            <img class="thumb" src="${imgsrc}" alt="${escapeHtml(p.name)}">
             <h3 class="name">${escapeHtml(p.name)}</h3>
             <div class="price">${price}</div>
             <button class="btn-add">add to cart</button>

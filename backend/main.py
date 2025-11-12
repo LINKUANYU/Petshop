@@ -9,12 +9,14 @@ app = FastAPI()
 BASE_DIR = Path(__file__).resolve().parent
 ROOT_DIR = BASE_DIR.parent
 FRONTEND_DIR = ROOT_DIR / "frontend" 
+BACKEND_STATIC = BASE_DIR / "static"
 
 @app.get("/")
 def home():
     return FileResponse(FRONTEND_DIR / "public" / "index.html")
 
 app.mount("/frontend", StaticFiles(directory=FRONTEND_DIR), name = "frontend")
+app.mount("/static", StaticFiles(directory=BACKEND_STATIC), name = "backend-static")
 
 DB_CONFIG ={
     "host": "localhost",
@@ -33,7 +35,7 @@ def get_conn():
 @app.get("/api/products")
 def list_product(
     page: int = Query(1, ge=1),
-    page_size: int = Query(3, ge=1, le=6),
+    page_size: int = Query(5, ge=1, le=5),
     q: str | None = Query(None)
 ):
 
