@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS categories (
 CREATE TABLE IF NOT EXISTS products (
   id INT AUTO_INCREMENT PRIMARY KEY,
   brands_id INT NOT NULL,
-  categories_id INT NOT NULL,
+  category_id INT NOT NULL,
   name VARCHAR(191) NOT NULL,
   slug VARCHAR(191) NOT NULL,
   description TEXT NULL,
@@ -46,11 +46,11 @@ CREATE TABLE IF NOT EXISTS products (
   is_active TINYINT NOT NULL DEFAULT 1,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY uk_products_slug (slug),
-  KEY idx_products_categories (categories_id),
+  KEY idx_products_category (category_id),
   KEY idx_products_brands (brands_id),
   KEY idx_products_name (name),
   CONSTRAINT fk_products_categories
-    FOREIGN KEY (categories_id) REFERENCES categories (id)
+    FOREIGN KEY (category_id) REFERENCES categories (id)
     ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT fk_products_brands
     FOREIGN KEY (brands_id) REFERENCES brands (id)

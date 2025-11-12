@@ -1,0 +1,11 @@
+.main-item{
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.card{
+    border: 1px solid #000; height: 200px;
+}
+.thumb{height: 80px;}
+
