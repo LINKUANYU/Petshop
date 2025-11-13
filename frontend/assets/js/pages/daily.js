@@ -1,43 +1,58 @@
 (function (){
-    
+    // findout which page_number currently at 
     // get element from URL ex:page_number
     const params = new URLSearchParams(location.search);
     // if URL has page_number get the value, else "1"
     const pageParam = params.get("page_number") || "1";
     // turn string into number and decimal
     const parsed = Number.parseInt(pageParam, 10);
-    // Number at least would be 1, *parsed could be NaN
+    // Choose the big number between page and 1, *parsed could be NaN
     const page_number = Math.max(1,parsed);
-    const showPage = document.querySelector('#showPage');
-    showPage.textContent = page_number;
+
+    const show_page = document.querySelector('#show_page');
+    // show_page.textContent = page_number;
 
     const list = document.querySelector('#product-list');
-    const nextLink = document.querySelector('#nextLink');
-    const previousLink = document.querySelector('#previousLink');
+    const next_link = document.querySelector('#next_link');
+    const previous_link = document.querySelector('#previous_link');
     
     fetch(`/api/daily-discover?page_number=${page_number}`)
         .then(res => {
             if (!res.ok) throw new Error (`HTTP ${res.status}`);
             return res.json();
         }).then(json => {
+            // Render card for current page
             list.innerHTML = json.data.map(renderCard).join("");
             
-            // build previous page
-            if (json.page_number === 1){
-                previousLink.style.display = "none";
+            // bulid previous/next page
+            // calculate total pages and show below the card
+            const total_pages = Math.max(1, (Math.ceil((json.total || 0) / (json.page_size || 5))));
+            show_page.textContent = `${json.page_number} / ${total_pages}`;
+
+            // previous page
+            if (json.page_number <= 1){
+                previous_link.setAttribute("aria-disabled", "true");
+                previous_link.removeAttribute("href");
+                previous_link.removeAttribute("rel");
             }else{
-                previousLink.href = `/daily_discover?page_number=${json.page_number - 1}`;
+                previous_link.removeAttribute("aria-disabled");
+                previous_link.href = `/daily_discover?page_number=${json.page_number - 1}`;
+                previous_link.setAttribute("rel", "prev");
             }
 
-            // bulid nextpage link if it's exsist
+            // next page
             if (json.has_next && json.next_page_number){
-                nextLink.href = `/daily_discover?page_number=${json.next_page_number}`;
-            } else {
-                nextLink.style.display = "none";
+                next_link.removeAttribute("aria-disabled");
+                next_link.href = `/daily_discover?page_number=${json.next_page_number}`;
+                next_link.setAttribute("rel", "next");
+            }else{
+                next_link.setAttribute("aria-disabled", "true");
+                next_link.removeAttribute("href");
+                next_link.removeAttribute("rel");
             }
+
         }).catch(() => {
             list.textContent = "載入失敗";
-            nextLink.style.display = "none";
         });
     
     function renderCard(p){
