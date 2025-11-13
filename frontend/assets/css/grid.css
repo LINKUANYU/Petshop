@@ -28,7 +28,7 @@
     object-fit: cover; display: block;
 }
 
-.name{padding: 5px; font-size: 1.2 rem; font-weight: bold; text-align: center;}
+.name{padding: 5px; font-size: 1.2rem; font-weight: bold; text-align: center;}
 
 .card .flex{
     display: flex;
@@ -37,6 +37,7 @@
     padding: 10px;
 }
 
-.link{font-size: 2rem; text-decoration: none; width: 40px; text-align: center;}
+.link{font-size: 1.5rem; text-decoration: none; width: 40px; text-align: center;}
 
-#showPage{font-size: 2rem; margin: 20px;}
+#show_page{font-size: 1.5rem; margin: 20px;}
+
