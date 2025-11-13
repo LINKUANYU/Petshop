@@ -18,7 +18,6 @@
 })();
 
 function renderCard(p){
-    const price = (p.price != null) ? `NT$ ${p.price}` : "";
     const imgkey = p.img;
     const imgsrc = imgkey ? `/static/${imgkey}`: `/static/search.png`;
     return `
@@ -28,7 +27,7 @@ function renderCard(p){
             </div>
             <p class="name">${escapeHtml(p.name)}</p>
             <div class="flex">
-                <div class="price">${price}</div>
+                <div class="price">${p.price}</div>
                 <button class="btn-add">add to cart</button>
             </div>
         </article>
@@ -36,11 +35,11 @@ function renderCard(p){
 }
 
 const HTML_ENT = Object.freeze({
-    "&": "&amp",
-    "<": "&lt",
-    ">": "&gt",
-    '"': "&quot",
-    "'": "&#39"
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
 });
 
 

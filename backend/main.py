@@ -20,7 +20,7 @@ def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 @app.get("/daily_discover")
-def home(request: Request):
+def daily_discover_page(request: Request):
     return templates.TemplateResponse("daily.html", {"request": request})
 
 
@@ -83,7 +83,7 @@ def daily_discover_highlights(
 
 @app.get("/api/daily-discover")
 def daily_discover_highlights(
-    pageNumber: int = Query(1, ge=1),
+    page_number: int = Query(1, ge=1),
 ):
 
     # 設定篩選條件
@@ -98,7 +98,7 @@ def daily_discover_highlights(
     '''
 
     # OFFSET
-    offset = (pageNumber - 1) * PAGE_SIZE
+    offset = (page_number - 1) * PAGE_SIZE
 
     # 商品資料
     sql = f'''
@@ -120,8 +120,8 @@ def daily_discover_highlights(
     cur.execute(sql, (PAGE_SIZE, offset))
     rows = cur.fetchall()
 
-    has_next = (pageNumber * PAGE_SIZE) < total
-    next_pageNumber = pageNumber + 1 if has_next else None
+    has_next = (page_number * PAGE_SIZE) < total
+    next_page_number = page_number + 1 if has_next else None
 
 
     cur.close()
@@ -136,9 +136,9 @@ def daily_discover_highlights(
         for r in rows]
     return {
         "data": data,
-        "pageNumber": pageNumber,
+        "page_number": page_number,
         "page_size": PAGE_SIZE,
         "total":total,
-        "hasNext": has_next,
-        "next_pageNumber": next_pageNumber
+        "has_next": has_next,
+        "next_page_number": next_page_number
         }
