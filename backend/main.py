@@ -1,6 +1,7 @@
 from pathlib import Path
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, Request
 from fastapi.responses import FileResponse
+from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 import mysql.connector
 
@@ -10,10 +11,13 @@ BASE_DIR = Path(__file__).resolve().parent
 ROOT_DIR = BASE_DIR.parent
 FRONTEND_DIR = ROOT_DIR / "frontend" 
 BACKEND_STATIC = BASE_DIR / "static"
+TEMPLATES_DIR = BASE_DIR / "templates"
+
+templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
 @app.get("/")
-def home():
-    return FileResponse(FRONTEND_DIR / "public" / "index.html")
+def home(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
 app.mount("/frontend", StaticFiles(directory=FRONTEND_DIR), name = "frontend")
 app.mount("/static", StaticFiles(directory=BACKEND_STATIC), name = "backend-static")
