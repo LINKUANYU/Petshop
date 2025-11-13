@@ -1,4 +1,14 @@
-        <!-- <header>
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="/frontend/assets/css/base.css">
+        <link rel="stylesheet" href="/frontend/assets/css/grid.css">
+        <title>{% block title %}Petshop{% endblock %}</title>
+    </head>
+    <body>
+        <header>
             <div class="main-width">
                 <div class="flex header-1">
                     <div class="left">
@@ -33,6 +43,7 @@
                             <div class="small-word">更多商品</div>
                             <div class="small-word">更多商品</div>
                             <div class="small-word">更多商品</div>
+                            <div class="small-word">更多商品</div>
                         </div>
                     </div>
                     <a id="right" href="/">
@@ -40,4 +51,11 @@
                     </a>
                 </div>
             </div>
-        </header> -->
+        </header>
+        <main>
+            {% block main %}
+
+            {% endblock %}
+        </main>
+    </body>
+</html>
