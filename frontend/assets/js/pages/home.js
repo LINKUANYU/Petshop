@@ -1,6 +1,6 @@
 (async function () {
     try{
-        const response = await fetch("/api/products?page=1&pagesize=3");
+        const response = await fetch("/api/daily-discover/highlights?limit=5");
         if (!response.ok) throw new Error (`HTTP ${response.status}`);
         const json = await response.json();
         const list = document.querySelector("#product-list");
@@ -23,10 +23,14 @@ function renderCard(p){
     const imgsrc = imgkey ? `/static/${imgkey}`: `/static/search.png`;
     return `
         <article class="card">
-            <img class="thumb" src="${imgsrc}" alt="${escapeHtml(p.name)}">
-            <h3 class="name">${escapeHtml(p.name)}</h3>
-            <div class="price">${price}</div>
-            <button class="btn-add">add to cart</button>
+            <div class="thumb-wrapper">
+                <img class="thumb" src="${imgsrc}" alt="${escapeHtml(p.name)}">
+            </div>
+            <p class="name">${escapeHtml(p.name)}</p>
+            <div class="flex">
+                <div class="price">${price}</div>
+                <button class="btn-add">add to cart</button>
+            </div>
         </article>
     `;
 }
