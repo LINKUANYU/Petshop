@@ -1,9 +1,13 @@
 from pathlib import Path
-from fastapi import FastAPI, Query, Request
+from fastapi import FastAPI, Query, Request, Depends
 from fastapi.responses import FileResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 import mysql.connector
+from typing import List, Optional
+from pydantic import BaseModel
+from schemas import Product_detail, Variant
+
 
 app = FastAPI()
 
@@ -19,17 +23,23 @@ templates = Jinja2Templates(directory=TEMPLATES_DIR)
 def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
+
 @app.get("/daily_discover")
 def daily_discover_page(request: Request):
     return templates.TemplateResponse("daily.html", {"request": request})
 
+
 @app.get("/product")
-def home(request: Request):
-    return templates.TemplateResponse("product.html", {"request": request})
+def product(
+    request: Request,
+    id: Optional[int] = None
+    ):
+    return templates.TemplateResponse("product.html", {"request": request, "product_id": id})
 
 
 app.mount("/frontend", StaticFiles(directory=FRONTEND_DIR), name = "frontend")
 app.mount("/static", StaticFiles(directory=BACKEND_STATIC), name = "backend-static")
+
 
 DB_CONFIG ={
     "host": "localhost",
@@ -40,16 +50,34 @@ DB_CONFIG ={
 }
 
 def get_conn():
-    return mysql.connector.connect(**DB_CONFIG)
+    conn = mysql.connector.connect(**DB_CONFIG)
+    try:
+        yield conn
+    finally:
+        try:
+            conn.close()
+        except:
+            pass
+
+def get_cur(conn = Depends(get_conn)):
+    cur = conn.cursor(dictionary=True)
+    try:
+        yield cur
+    finally:
+        try:
+            cur.close()
+        except:
+            pass
+
 
 # API 
 
 PAGE_SIZE = 5
 
-# 型別設定
 @app.get("/api/daily-discover/highlights")
 def daily_discover_highlights(
     limit: int = Query(5, ge=1, le=5),
+    cur = Depends(get_cur)
 ):
 
     # 設定篩選條件
@@ -58,22 +86,18 @@ def daily_discover_highlights(
 
     # 商品資料
     sql = f'''
-    SELECT p.id, p.name, p.main_image, MIN(v.price) AS price_cents
-    FROM products p JOIN product_variants v ON p.id = v.product_id
-    WHERE {where_sql} 
-    GROUP BY p.id, p.name, p.main_image 
-    ORDER BY p.created_at DESC
-    LIMIT %s 
-    '''
+        SELECT p.id, p.name, p.main_image, MIN(v.price) AS price_cents
+        FROM products p JOIN product_variants v ON p.id = v.product_id
+        WHERE {where_sql} 
+        GROUP BY p.id, p.name, p.main_image 
+        ORDER BY p.created_at DESC
+        LIMIT %s 
+        '''
     # 執行sql
-    conn = get_conn()
-    cur = conn.cursor(dictionary=True)
 
     cur.execute(sql, (limit,))
     rows = cur.fetchall()
 
-    cur.close()
-    conn.close()
 
     # 建立回傳json
     data = [{
@@ -86,8 +110,9 @@ def daily_discover_highlights(
 
 
 @app.get("/api/daily-discover")
-def daily_discover_highlights(
+def daily_discover(
     page_number: int = Query(1, ge=1),
+    cur = Depends(get_cur)
 ):
 
     # 設定篩選條件
@@ -96,28 +121,25 @@ def daily_discover_highlights(
 
     #算總數 
     total_sql = f'''
-    SELECT COUNT(DISTINCT p.id) AS counts
-    FROM products p JOIN product_variants v ON p.id = v.product_id
-    WHERE {where_sql}
-    '''
+        SELECT COUNT(DISTINCT p.id) AS counts
+        FROM products p JOIN product_variants v ON p.id = v.product_id
+        WHERE {where_sql}
+        '''
 
     # OFFSET
     offset = (page_number - 1) * PAGE_SIZE
 
     # 商品資料
     sql = f'''
-    SELECT p.id, p.name, p.main_image, MIN(v.price) AS price_cents
-    FROM products p JOIN product_variants v ON p.id = v.product_id
-    WHERE {where_sql} 
-    GROUP BY p.id, p.name, p.main_image 
-    ORDER BY p.created_at DESC
-    LIMIT %s OFFSET %s
-    '''
+        SELECT p.id, p.name, p.main_image, MIN(v.price) AS price_cents
+        FROM products p JOIN product_variants v ON p.id = v.product_id
+        WHERE {where_sql} 
+        GROUP BY p.id, p.name, p.main_image 
+        ORDER BY p.created_at DESC
+        LIMIT %s OFFSET %s
+        '''
 
     # 執行sql
-    conn = get_conn()
-    cur = conn.cursor(dictionary=True)
-
     cur.execute(total_sql)
     total = cur.fetchone()["counts"]
     
@@ -126,10 +148,6 @@ def daily_discover_highlights(
 
     has_next = (page_number * PAGE_SIZE) < total
     next_page_number = page_number + 1 if has_next else None
-
-
-    cur.close()
-    conn.close()
 
     # 建立回傳json
     data = [{
@@ -146,3 +164,69 @@ def daily_discover_highlights(
         "has_next": has_next,
         "next_page_number": next_page_number
         }
+
+@app.get("/api/product/{product_id}", response_model=Product_detail)
+def get_product_detail(
+    product_id: int,
+    cur = Depends(get_cur)
+    ):
+    
+
+    get_product = f'''
+        SELECT p.id, p.name, p.description, p.main_image,
+            p.brand_id, b.name AS brand_name,
+            p.category_id, c.name AS category_name, c.slug AS category_slug
+        FROM products p JOIN brands b ON p.brand_id = b.id JOIN categories c ON p.category_id = c.id
+        WHERE p.id = %s AND p.is_active = 1 
+        '''
+    
+    cur.execute(get_product, (product_id,))
+    data = cur.fetchone()
+    if (data["main_image"]) is None:
+        data["main_image"] = "assets/Nophoto.png"
+    
+    
+    get_product_variants = f'''
+        SELECT id, sku,
+            COALESCE(option_text, CONCAT('default-', id)) AS label,
+            price, stock_qty AS stock
+            FROM product_variants
+            WHERE product_id = %s AND is_active = 1
+            ORDER BY id
+        '''
+    
+    cur.execute(get_product_variants, (product_id,))
+    vrows = cur.fetchall()
+    
+    # variants = [{
+    #     "id": v["id"],
+    #     "sku": v["sku"],
+    #     "label": v["label"],
+    #     "price": v["price"] // 100 if v["price"] is not None else None,
+    #     "stock": v["stock"]
+    #     } for v in vrows]
+    
+    detail = Product_detail(
+        id = data["id"],
+        name = data["name"],
+        description = data.get("description"),
+        brand_id = data["brand_id"],
+        brand_name = data["brand_name"],
+        category_id = data["category_id"],
+        category_name = data["category_name"],
+        category_slug = data["category_slug"],
+        photo = data["main_image"],
+        # 以下待確認
+        variants=[
+            Variant(
+                id=v["id"],
+                sku=v["sku"],
+                label=v.get("label") or f"default-{v['id']}",
+                price=(int(v["price"]) // 100) if v.get("price") is not None else None,
+                stock=int(v.get("stock") or 0),
+            )
+            for v in vrows or []
+        ]
+    )
+    
+    return detail
