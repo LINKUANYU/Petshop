@@ -15,12 +15,12 @@ header{
 
 }
 
-.left{
+.header-left{
     display: flex;
     justify-content: start;
     flex: auto;
 }
-.right{
+.header-right{
     display: flex;
     justify-content: end;
 }
@@ -38,8 +38,8 @@ header{
 #shopme{height: 80px;}
 #cart{height: 50px;}
 
-#left, #right{flex: 1 0 auto; display: flex; justify-content: center;}
-#middle{flex: 0 0 auto;}
+#base-left, #base-right{flex: 1 0 auto; display: flex; justify-content: center;}
+#base-middle{flex: 0 0 auto;}
 
 #search{
     height: 40px; width: 700px; 
@@ -65,3 +65,6 @@ header{
     height: 80px; font-size: 2rem;
 }
 
+.mt-20{margin-bottom: 20px;}
+
+.mr-20{ margin-right: 20px;}

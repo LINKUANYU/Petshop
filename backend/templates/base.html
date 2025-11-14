@@ -4,20 +4,20 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="/frontend/assets/css/base.css">
-        <link rel="stylesheet" href="/frontend/assets/css/grid.css">
+        {% block link %}{% endblock %}
         <title>{% block title %}Petshop{% endblock %}</title>
     </head>
     <body>
         <header>
             <div class="main-width">
                 <div class="flex header-1">
-                    <div class="left">
+                    <div class="header-left">
                         <div class="header-item">賣家中心</div>
                         <div class="header-item">開始隨拍即賣囉！</div>
                         <div class="header-item">下載</div>
                         <div class="header-item">追蹤我們</div>
                     </div>
-                    <div class="right">
+                    <div class="header-right">
                         <div class="header-item">通知</div>
                         <div class="header-item">幫助中心</div>
                         <div class="header-item">繁體中文</div>
@@ -26,10 +26,10 @@
                     </div>
                 </div>
                 <div class="flex header-2">
-                    <a id="left" href="/">
+                    <a id="base-left" href="/">
                         <img id="shopme" src="/static/shopme.jpg">
                     </a>
-                    <div id="middle">
+                    <div id="base-middle">
                         <form id="search-bar">
                             <input id="search">
                             <button type="button" id="search-btn">
@@ -46,7 +46,7 @@
                             <div class="small-word">更多商品</div>
                         </div>
                     </div>
-                    <a id="right" href="/">
+                    <a id="base-right" href="/">
                         <img id="cart" src="/static/cart.jpg">
                     </a>
                 </div>

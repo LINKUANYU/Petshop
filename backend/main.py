@@ -23,6 +23,10 @@ def home(request: Request):
 def daily_discover_page(request: Request):
     return templates.TemplateResponse("daily.html", {"request": request})
 
+@app.get("/product")
+def home(request: Request):
+    return templates.TemplateResponse("product.html", {"request": request})
+
 
 app.mount("/frontend", StaticFiles(directory=FRONTEND_DIR), name = "frontend")
 app.mount("/static", StaticFiles(directory=BACKEND_STATIC), name = "backend-static")
