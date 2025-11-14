@@ -1,0 +1,25 @@
+.flex-1{
+    display: flex;
+    
+}
+
+
+#left{
+    width: 480px;
+    padding: 15px;
+}
+
+#product-img{
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+#right{
+    width: 720px;
+    padding: 15px;
+}
+
+.box-1{width: 100px;}
+
+#name{font-size: 1.5rem; font-weight: bold;}

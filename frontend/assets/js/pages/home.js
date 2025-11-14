@@ -27,7 +27,7 @@ function renderCard(p){
             </div>
             <p class="name">${escapeHtml(p.name)}</p>
             <div class="flex">
-                <div class="price">${p.price}</div>
+                <div class="price">NT$${p.price}</div>
                 <button class="btn-add">add to cart</button>
             </div>
         </article>

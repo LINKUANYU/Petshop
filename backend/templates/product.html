@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block link %}<link rel="stylesheet" href="/frontend/assets/css/product.css">{% endblock %}
+{% block title %}Prodcut{% endblock %}
+
+{% block main %}
+<div class="main-width">
+    <div id="categoies">麵包屑</div>
+    <section class="flex-1">
+        <section id="left">
+            <img src="/static/shopme.jpg" id="product-img">
+        </section>
+        <section id="right">
+            <div id="name" class="mt-20">商品名稱</div>
+            <div class="row flex-1 mt-20">
+                <div id="price" class="mr-20">現價</div>
+                <div id="list-price">原價</div>
+            </div>
+            <div class="row flex-1 mt-20">
+                <div class="box-1">
+                    <span>規格</span>
+                </div>
+                <div class="box-2">
+                    <div id="var-img">變體圖&按鈕</div>
+                </div>
+            </div>
+            <div class="row flex-1 mt-20">
+                <div class="box-1">
+                    <span>數量</span>
+                </div>
+                <div class="box-2 flex-1">
+                    <div class="mr-20">數字按鈕</div>
+                    <div id="stock">庫存</div>                    
+                </div>
+            </div>
+            <div class="row flex-1 mt-20">
+                <button class="mr-20">加入購物車</button>
+                <button>直接購買</button>
+            </div>
+
+        </section>
+    </section>
+    
+</div>
+
+<script src="/frontend/assets/js/pages/product.js"></script>
+
+
+{% endblock %}
