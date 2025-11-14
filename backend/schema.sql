@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS brands (
   name VARCHAR(191) NOT NULL,
   slug VARCHAR(191) NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CREATE INDEX idx_brands_name ON brands(name),
+  KEY idx_brands_name ON brands(name),
   UNIQUE KEY uk_brands_slug (slug)
 ) ENGINE=InnoDB;
 
@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS products (
 -- 產品規格/變體
 CREATE TABLE IF NOT EXISTS product_variants (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  products_id INT NOT NULL,
+  product_id INT NOT NULL,
   sku VARCHAR(191) NOT NULL,
   option_text VARCHAR(191) NULL,
   price INT NOT NULL,
