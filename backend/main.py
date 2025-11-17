@@ -3,7 +3,7 @@ from fastapi import FastAPI, Query, Request, Depends
 from fastapi.responses import FileResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-import mysql.connector
+import mysql.connector, os
 from typing import List, Optional
 from pydantic import BaseModel
 from schemas import Product_detail, Variant
@@ -41,12 +41,12 @@ app.mount("/frontend", StaticFiles(directory=FRONTEND_DIR), name = "frontend")
 app.mount("/static", StaticFiles(directory=BACKEND_STATIC), name = "backend-static")
 
 
-DB_CONFIG ={
-    "host": "localhost",
-    "port": 3306,
-    "user": "root",
-    "password": "",
-    "database": "petshop"
+
+DB_CONFIG = {
+    "host": os.getenv("DB_HOST", "localhost"),
+    "user": os.getenv("DB_USER", "root"),
+    "password": os.getenv("DB_PASSWORD", ""),
+    "database": os.getenv("DB_NAME", "petshop"),
 }
 
 def get_conn():
