@@ -45,7 +45,7 @@ DB_CONFIG ={
     "host": "localhost",
     "port": 3306,
     "user": "root",
-    "password": "REMOVED_DB_PW",
+    "password": "",
     "database": "petshop"
 }
 
