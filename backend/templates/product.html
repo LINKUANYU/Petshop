@@ -8,20 +8,16 @@
     <div id="categoies">麵包屑</div>
     <section class="flex-1">
         <section id="left">
-            <img src="/static/shopme.jpg" id="product-img">
+            <img src="/static/{{product.image}}" id="product-img">
         </section>
         <section id="right">
-            <div id="name" class="mt-20">商品名稱</div>
-            <div class="row flex-1 mt-20">
-                <div id="price" class="mr-20">現價</div>
-                <div id="list-price">原價</div>
-            </div>
+            <div id="name" class="mt-20">{{product.product_name}}</div>
             <div class="row flex-1 mt-20">
                 <div class="box-1">
-                    <span>規格</span>
+                    <span>價格</span>
                 </div>
                 <div class="box-2">
-                    <div id="var-img">變體圖&按鈕</div>
+                    <div id="price">NT${{variant[0].price // 100}}</div>
                 </div>
             </div>
             <div class="row flex-1 mt-20">
@@ -29,7 +25,23 @@
                     <span>品牌</span>
                 </div>
                 <div class="box-2">
-                    <div id="brand">品牌名稱</div>
+                    <div id="brand">{{product.brand_name}}</div>
+                </div>
+            </div>
+            <div class="row flex-1 mt-20">
+                <div class="box-1">
+                    <span>規格</span>
+                </div>
+                <div class="box-2">
+                    {% for v in variant %}
+                    <button 
+                        type="button"
+                        class="var-btn {% if loop.first %}is-active{% endif %}"
+                        data-price="{{v.price}}"
+                        data-stock="{{v.stock}}"
+                        >
+                        {{v.sku}}</button>
+                    {% endfor %}
                 </div>
             </div>
             <div class="row flex-1 mt-20">
@@ -38,7 +50,7 @@
                 </div>
                 <div class="box-2 flex-1">
                     <div class="mr-20">數字按鈕</div>
-                    <div id="stock">庫存</div>                    
+                    <div id="stock">{{variant[0].stock}}</div>                    
                 </div>
             </div>
             <div class="row flex-1 mt-20">

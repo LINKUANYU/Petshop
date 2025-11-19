@@ -1,12 +1,9 @@
 from pathlib import Path
 from fastapi import FastAPI, Query, Request, Depends
-from fastapi.responses import FileResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import RedirectResponse
 import mysql.connector, os
-from typing import List, Optional
-from pydantic import BaseModel
-from schemas import Product_detail, Variant
 from dotenv import load_dotenv
 from mysql.connector import Error
 
@@ -74,173 +71,109 @@ def get_cur(conn = Depends(get_conn)):
     finally:
         cur.close()
 
+PAGE_SIZE = 5
 @app.get("/")
-def home(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+def home(
+    request: Request,
+    cur = Depends(get_cur)
+    ):
+
+    sql = f'''
+        SELECT p.id, p.name, p.main_image, MIN(v.price) AS price
+        FROM products p JOIN product_variants v ON p.id = v.product_id
+        WHERE p.is_active = 1 AND v.is_active = 1
+        GROUP BY p.id, p.name, p.main_image
+        ORDER BY p.id ASC
+        LIMIT %s
+        '''
+    # 執行sql
+    cur.execute(sql, (PAGE_SIZE,))
+    data = cur.fetchall()
+    
+    return templates.TemplateResponse("home.html", {"request": request, "data": data})
 
 
 @app.get("/daily_discover")
-def daily_discover_page(request: Request):
-    return templates.TemplateResponse("daily.html", {"request": request})
+def daily_discover_page(
+    request: Request,
+    page_number: int = Query(1, ge=1),
+    cur = Depends(get_cur)
+    ):
+    offset = (page_number - 1) * PAGE_SIZE
+    
+    total_sql = f'''
+        SELECT COUNT(*) AS c FROM products WHERE is_active = 1
+    '''
+    cur.execute(total_sql)
+    total = cur.fetchone()
+
+    next_page = total["c"] > page_number * PAGE_SIZE
+    previous_page = page_number > 1
+    sql = f'''
+        SELECT p.id, p.name, p.main_image, MIN(v.price) AS price
+        FROM products p JOIN product_variants v ON p.id = v.product_id
+        WHERE p.is_active = 1 AND v.is_active = 1
+        GROUP BY p.id, p.name, p.main_image
+        ORDER BY p.id ASC
+        LIMIT %s OFFSET %s
+        '''
+
+    cur.execute(sql, (PAGE_SIZE,offset))
+    data = cur.fetchall()
+    print(data)
+    if not data:
+        return RedirectResponse(url="/ohoh?msg=page not found", status_code=303)
+    
+    return templates.TemplateResponse("daily.html", {
+        "request": request, 
+        "data": data, 
+        "page_number": page_number, 
+        "next": next_page,
+        "previous_page": previous_page
+        })
 
 
 @app.get("/product/{id}")
 def product(
     request: Request,
-    id: int
-    ):
-
-    
-    return templates.TemplateResponse("product.html", {"request": request, "product_id": id})
-
-
-
-PAGE_SIZE = 5
-
-@app.get("/api/daily-discover/highlights")
-def daily_discover_highlights(
-    limit: int = Query(5, ge=1, le=5),
-    cur = Depends(get_cur)
-):
-
-    # 設定篩選條件
-    condition = ["p.is_active = 1", "v.is_active = 1"]
-    where_sql = " AND ".join(condition)
-
-    # 商品資料
-    sql = f'''
-        SELECT p.id, p.name, p.main_image, MIN(v.price) AS price_cents
-        FROM products p JOIN product_variants v ON p.id = v.product_id
-        WHERE {where_sql} 
-        GROUP BY p.id, p.name, p.main_image 
-        ORDER BY p.created_at DESC
-        LIMIT %s 
-        '''
-    # 執行sql
-
-    cur.execute(sql, (limit,))
-    rows = cur.fetchall()
-
-
-    # 建立回傳json
-    data = [{
-        "id": r["id"],
-        "name": r["name"],
-        "img": r["main_image"],
-        "price": r["price_cents"] // 100}
-        for r in rows]
-    return {"data": data, "count": len(data)}
-
-
-@app.get("/api/daily-discover")
-def daily_discover(
-    page_number: int = Query(1, ge=1),
-    cur = Depends(get_cur)
-):
-
-    # 設定篩選條件
-    condition = ["p.is_active = 1", "v.is_active = 1"]
-    where_sql = " AND ".join(condition)
-
-    #算總數 
-    total_sql = f'''
-        SELECT COUNT(DISTINCT p.id) AS counts
-        FROM products p JOIN product_variants v ON p.id = v.product_id
-        WHERE {where_sql}
-        '''
-
-    # OFFSET
-    offset = (page_number - 1) * PAGE_SIZE
-
-    # 商品資料
-    sql = f'''
-        SELECT p.id, p.name, p.main_image, MIN(v.price) AS price_cents
-        FROM products p JOIN product_variants v ON p.id = v.product_id
-        WHERE {where_sql} 
-        GROUP BY p.id, p.name, p.main_image 
-        ORDER BY p.created_at DESC
-        LIMIT %s OFFSET %s
-        '''
-
-    # 執行sql
-    cur.execute(total_sql)
-    total = cur.fetchone()["counts"]
-    
-    cur.execute(sql, (PAGE_SIZE, offset))
-    rows = cur.fetchall()
-
-    has_next = (page_number * PAGE_SIZE) < total
-    next_page_number = page_number + 1 if has_next else None
-
-    # 建立回傳json
-    data = [{
-        "id": r["id"],
-        "name": r["name"],
-        "img": r["main_image"],
-        "price": r["price_cents"] // 100}
-        for r in rows]
-    return {
-        "data": data,
-        "page_number": page_number,
-        "page_size": PAGE_SIZE,
-        "total":total,
-        "has_next": has_next,
-        "next_page_number": next_page_number
-        }
-
-@app.get("/api/product/{product_id}", response_model=Product_detail)
-def get_product_detail(
-    product_id: int,
+    id: int,
     cur = Depends(get_cur)
     ):
     
-    get_product = f'''
-        SELECT p.id, p.name, p.description, p.main_image,
-            p.brand_id, b.name AS brand_name,
-            p.category_id, c.name AS category_name, c.slug AS category_slug
-        FROM products p JOIN brands b ON p.brand_id = b.id JOIN categories c ON p.category_id = c.id
-        WHERE p.id = %s AND p.is_active = 1 
-        '''
+    product_sql = f'''
+        SELECT 
+            p.id AS product_id, p.name AS product_name,
+            p.description AS product_description, p.main_image AS image,
+            b.id AS brand_id, b.name AS brand_name,
+            c.id AS category_id, c.name AS category_name,
+            c.slug AS category_slug
+        FROM products p JOIN brands b ON p.brand_id = b.id
+        JOIN categories c ON p.category_id = c.id
+        WHERE p.id = %s AND p.is_active = 1        
+    '''
+    variant_sql = f'''
+        SELECT p.id AS product_id, v.sku, v.option_text, v.price,
+            v.stock_qty AS stock
+        FROM product_variants v JOIN products p ON v.product_id = p.id
+        WHERE p.id = %s AND p.is_active = 1 AND v.is_active = 1
+        ORDER BY v.price ASC
+    '''
+
+    cur.execute(product_sql, (id,))
+    product = cur.fetchone()
+    if not product:
+        return RedirectResponse(url="/ohoh?msg=product data not found", status_code=303)
     
-    cur.execute(get_product, (product_id,))
-    data = cur.fetchone()
-    if not data:
-        raise HTTPException(status_code=404, detail="Product not found")
-    if not data["main_image"]:
-        data["main_image"] = "assets/Nophoto.png"
-    
-    
-    get_product_variants = f'''
-        SELECT id, sku,
-            COALESCE(option_text, CONCAT('default-', id)) AS label,
-            price, stock_qty AS stock
-            FROM product_variants
-            WHERE product_id = %s AND is_active = 1
-            ORDER BY id
-        '''
-    
-    cur.execute(get_product_variants, (product_id,))
-    vrows = cur.fetchall()
-    
-    variants = [Variant(
-        variant_id = v["id"],
-        sku = v["sku"],
-        label = v["label"],
-        price = int(v["price"] // 100),
-        stock = int(v["stock"])
-        ) for v in vrows]
-    
-    detail = Product_detail(
-        product_id = data["id"],
-        name = data["name"],
-        description = data.get("description"),
-        brand_id = data["brand_id"],
-        brand_name = data["brand_name"],
-        category_id = data["category_id"],
-        category_name = data["category_name"],
-        category_slug = data["category_slug"],
-        image = data["main_image"],
-        variants = variants
-    )
-    
-    return detail
+    cur.execute(variant_sql, (id,))
+    variant = cur.fetchall()
+
+    return templates.TemplateResponse("product.html", {
+        "request": request, 
+        "product_id": id,
+        "product": product,
+        "variant": variant
+        })
+
+@app.get("/ohoh")
+def ohoh(request: Request, msg: str):
+    return templates.TemplateResponse("ohoh.html", {"request": request, "msg": msg})

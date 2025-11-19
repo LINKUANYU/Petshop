@@ -6,12 +6,33 @@
 <div class="main-width">
     <div class="flex title">每日新發現</div>
     <div class="main-item" id="product-list">
-        
+    {% if msg %}
+        <h1>No data</h1>
+    {% endif %}
+    {% for d in data %}
+        <a class="card" href="/product/{{d.id}}">
+            <div class="thumb-wrapper">
+                <img class="thumb" src="/static/{{d.main_image}}" alt="{{d.name}}">
+            </div>
+            <p class="name">{{d.name}}</p>
+            <div class="flex">
+                <div class="price">NT$${{d.price // 100}}</div>
+            </div>
+        </a>
+    {% endfor %}
     </div>
     <div id="page_btn" class="flex">
-        <a id="previous_link" class="link"><</a>
-        <div id="show_page"></div>
-        <a id="next_link" class="link">></a>
+        <a class="link" 
+        {% if previous_page %}
+        href="/daily_discover?page_number={{page_number-1}}"
+        {% endif %}
+        ><</a>
+        <div id="show_page">{{page_number}}</div>
+        <a class="link"
+        {% if next %}
+        href="/daily_discover?page_number={{page_number+1}}"
+        {% endif %}
+        >></a>
     </div>
 </div>
 

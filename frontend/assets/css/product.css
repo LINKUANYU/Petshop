@@ -23,3 +23,16 @@
 .box-1{width: 100px;}
 
 #name{font-size: 1.5rem; font-weight: bold;}
+
+.var-btn {
+  border: 1px solid #ddd;
+  padding: 4px 8px;
+  margin-right: 8px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.var-btn.is-active {
+  border-color: #ff5722;
+  color: #ff5722;
+}

@@ -18,7 +18,7 @@
 }
 
 .thumb-wrapper{
-    width: 100%;
+    width: 100%; 
     aspect-ratio: 1 / 1;
     overflow: hidden;
 }
@@ -28,7 +28,7 @@
     object-fit: cover; display: block;
 }
 
-.name{padding: 5px; font-size: 1.2rem; font-weight: bold; text-align: center;}
+.name{padding: 5px; font-size: 1rem; font-weight: bold; text-align: center;}
 
 .card .flex{
     display: flex;
@@ -41,3 +41,4 @@
 
 #show_page{font-size: 1.5rem; margin: 20px;}
 
+a{text-decoration: none; color: #000;}

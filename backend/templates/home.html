@@ -7,7 +7,17 @@
 <div class="main-width">
     <div class="flex title">每日新發現</div>
     <div class="main-item" id="product-list">
-        
+    {% for d in data %}
+        <a class="card" href="/product/{{d.id}}">
+            <div class="thumb-wrapper">
+                <img class="thumb" src="/static/{{d.main_image}}" alt="{{d.name}}">
+            </div>
+            <p class="name">{{d.name}}</p>
+            <div class="flex">
+                <div class="price">NT$${{d.price // 100}}</div>
+            </div>
+        </a>
+    {% endfor %}
     </div>
     <a href="/daily_discover" id="load-more">查看更多</a>
 
