@@ -7,6 +7,8 @@ import mysql.connector, os
 from typing import List, Optional
 from pydantic import BaseModel
 from schemas import Product_detail, Variant
+from dotenv import load_dotenv
+from mysql.connector import Error
 
 
 app = FastAPI()
@@ -19,6 +21,59 @@ TEMPLATES_DIR = BASE_DIR / "templates"
 
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
+
+
+app.mount("/frontend", StaticFiles(directory=FRONTEND_DIR), name = "frontend")
+app.mount("/static", StaticFiles(directory=BACKEND_STATIC), name = "backend-static")
+
+
+load_dotenv()
+DB_CONFIG = {
+    "host": os.getenv("DB_HOST", "localhost"),
+    "port": int(os.getenv("DB_PORT", "3306")),
+    "user": os.getenv("DB_USER", "root"),
+    "password": os.getenv("DB_PASSWORD"),
+    "database": os.getenv("DB_NAME"),
+}
+
+# this is a decorator not a real route, it only execute once
+@app.on_event("startup")
+def test_db_connection():
+    try:
+        conn = mysql.connector.connect(**DB_CONFIG)
+        cur = conn.cursor()
+        cur.execute("SELECT DATABASE(), NOW()")
+        row = cur.fetchone()
+        print("Current DB is", row[0])
+        print("Current time is", row[1])
+    # Error provide by mysql connection
+    except Error as e:
+        print("Connect fail", e)
+    finally:
+        try:
+            if cur:
+                cur.close()
+            if conn:
+                conn.close()
+        # if cur/conn have not been define as var will cause NameError, just pass it.
+        except NameError:
+            pass
+
+#  Use Depends to connect and sending instruction to DB for API
+def get_conn():
+    conn = mysql.connector.connect(**DB_CONFIG)
+    try:
+        yield conn
+    finally:
+        conn.close()
+
+def get_cur(conn = Depends(get_conn)):
+    cur = conn.cursor(dictionary=True)
+    try:
+        yield cur
+    finally:
+        cur.close()
+
 @app.get("/")
 def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
@@ -29,48 +84,16 @@ def daily_discover_page(request: Request):
     return templates.TemplateResponse("daily.html", {"request": request})
 
 
-@app.get("/product")
+@app.get("/product/{id}")
 def product(
     request: Request,
-    id: Optional[int] = None
+    id: int
     ):
+
+    
     return templates.TemplateResponse("product.html", {"request": request, "product_id": id})
 
 
-app.mount("/frontend", StaticFiles(directory=FRONTEND_DIR), name = "frontend")
-app.mount("/static", StaticFiles(directory=BACKEND_STATIC), name = "backend-static")
-
-
-
-DB_CONFIG = {
-    "host": os.getenv("DB_HOST", "localhost"),
-    "user": os.getenv("DB_USER", "root"),
-    "password": os.getenv("DB_PASSWORD", ""),
-    "database": os.getenv("DB_NAME", "petshop"),
-}
-
-def get_conn():
-    conn = mysql.connector.connect(**DB_CONFIG)
-    try:
-        yield conn
-    finally:
-        try:
-            conn.close()
-        except:
-            pass
-
-def get_cur(conn = Depends(get_conn)):
-    cur = conn.cursor(dictionary=True)
-    try:
-        yield cur
-    finally:
-        try:
-            cur.close()
-        except:
-            pass
-
-
-# API 
 
 PAGE_SIZE = 5
 
@@ -104,7 +127,7 @@ def daily_discover_highlights(
         "id": r["id"],
         "name": r["name"],
         "img": r["main_image"],
-        "price": r["price_cents"] // 100 if r["price_cents"] is not None else None}
+        "price": r["price_cents"] // 100}
         for r in rows]
     return {"data": data, "count": len(data)}
 
@@ -154,7 +177,7 @@ def daily_discover(
         "id": r["id"],
         "name": r["name"],
         "img": r["main_image"],
-        "price": r["price_cents"] // 100 if r["price_cents"] is not None else None}
+        "price": r["price_cents"] // 100}
         for r in rows]
     return {
         "data": data,
@@ -171,7 +194,6 @@ def get_product_detail(
     cur = Depends(get_cur)
     ):
     
-
     get_product = f'''
         SELECT p.id, p.name, p.description, p.main_image,
             p.brand_id, b.name AS brand_name,
@@ -182,7 +204,9 @@ def get_product_detail(
     
     cur.execute(get_product, (product_id,))
     data = cur.fetchone()
-    if (data["main_image"]) is None:
+    if not data:
+        raise HTTPException(status_code=404, detail="Product not found")
+    if not data["main_image"]:
         data["main_image"] = "assets/Nophoto.png"
     
     
@@ -198,16 +222,16 @@ def get_product_detail(
     cur.execute(get_product_variants, (product_id,))
     vrows = cur.fetchall()
     
-    # variants = [{
-    #     "id": v["id"],
-    #     "sku": v["sku"],
-    #     "label": v["label"],
-    #     "price": v["price"] // 100 if v["price"] is not None else None,
-    #     "stock": v["stock"]
-    #     } for v in vrows]
+    variants = [Variant(
+        variant_id = v["id"],
+        sku = v["sku"],
+        label = v["label"],
+        price = int(v["price"] // 100),
+        stock = int(v["stock"])
+        ) for v in vrows]
     
     detail = Product_detail(
-        id = data["id"],
+        product_id = data["id"],
         name = data["name"],
         description = data.get("description"),
         brand_id = data["brand_id"],
@@ -215,18 +239,8 @@ def get_product_detail(
         category_id = data["category_id"],
         category_name = data["category_name"],
         category_slug = data["category_slug"],
-        photo = data["main_image"],
-        # 以下待確認
-        variants=[
-            Variant(
-                id=v["id"],
-                sku=v["sku"],
-                label=v.get("label") or f"default-{v['id']}",
-                price=(int(v["price"]) // 100) if v.get("price") is not None else None,
-                stock=int(v.get("stock") or 0),
-            )
-            for v in vrows or []
-        ]
+        image = data["main_image"],
+        variants = variants
     )
     
     return detail
