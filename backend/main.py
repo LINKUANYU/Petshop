@@ -4,8 +4,9 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 import mysql.connector, os
-from dotenv import load_dotenv
 from mysql.connector import Error
+from .deps import get_conn, get_cur, get_current_user_id, DB_CONFIG
+
 
 
 app = FastAPI()
@@ -22,16 +23,6 @@ templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
 app.mount("/frontend", StaticFiles(directory=FRONTEND_DIR), name = "frontend")
 app.mount("/static", StaticFiles(directory=BACKEND_STATIC), name = "backend-static")
-
-
-load_dotenv()
-DB_CONFIG = {
-    "host": os.getenv("DB_HOST", "localhost"),
-    "port": int(os.getenv("DB_PORT", "3306")),
-    "user": os.getenv("DB_USER", "root"),
-    "password": os.getenv("DB_PASSWORD"),
-    "database": os.getenv("DB_NAME"),
-}
 
 # this is a decorator not a real route, it only execute once
 @app.on_event("startup")
@@ -56,20 +47,6 @@ def test_db_connection():
         except NameError:
             pass
 
-#  Use Depends to connect and sending instruction to DB for API
-def get_conn():
-    conn = mysql.connector.connect(**DB_CONFIG)
-    try:
-        yield conn
-    finally:
-        conn.close()
-
-def get_cur(conn = Depends(get_conn)):
-    cur = conn.cursor(dictionary=True)
-    try:
-        yield cur
-    finally:
-        cur.close()
 
 PAGE_SIZE = 5
 @app.get("/")
@@ -120,7 +97,6 @@ def daily_discover_page(
 
     cur.execute(sql, (PAGE_SIZE,offset))
     data = cur.fetchall()
-    print(data)
     if not data:
         return RedirectResponse(url="/ohoh?msg=page not found", status_code=303)
     
@@ -177,3 +153,33 @@ def product(
 @app.get("/ohoh")
 def ohoh(request: Request, msg: str):
     return templates.TemplateResponse("ohoh.html", {"request": request, "msg": msg})
+
+@app.get("/signup")
+def signup(
+    request: Request
+):
+    return templates.TemplateResponse("signup.html", {"request": request})
+
+@app.post("/api/signup")
+def signup(
+    request: Request,
+    name: str,
+    email: str,
+    pw_1: str,
+    pw_2: str,
+    phone: str,
+    conn = Depends(get_conn)
+):
+    cur = conn.cursor()
+    cur.execute("INSERT INTO members ()")
+
+
+    return templates.TemplateResponse("signup.html", {"request": request})
+
+
+
+@app.get("/login")
+def login(
+    request: Request
+):
+    return templates.TemplateResponse("login.html", {"request": request})
