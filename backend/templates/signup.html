@@ -18,26 +18,78 @@
         </header>
         <main>
             <div class="main-width">
-                <form action="/api/signup" method="post">
+                <form id="form-signup">
                     <h2 class="flex">Signup</h2>
                     <div  class="flex mb-20">
-                        姓名<input name="name">
+                        姓名<input id="signup-name">
                     </div>
                     <div  class="flex mb-20">
-                        信箱<input name="email">
+                        信箱<input id="signup-email">
                     </div>
                     <div  class="flex mb-20">
-                        密碼<input name="pw_1">
+                        密碼<input id="signup-pw-1">
                     </div>
                     <div  class="flex mb-20">
-                        密碼確認<input name="pw_2">
+                        密碼確認<input id="signup-pw-2">
                     </div>
                     <div  class="flex mb-20">
-                        <button type="submit">submit</button>
+                        <button type="submit" id="btn-signup">submit</button>
                     </div>
+                    <div  class="flex mb-20" id="msg"></div>
                 </form>
             </div>
         </main>
-        <script></script>
+        <script>
+            const form = document.querySelector('#form-signup');
+            const msg = document.querySelector('#msg');
+
+            async function fetchData(url, opts) {
+                const res = await fetch(url, opts); // 等待 fetch 完成，拿到 Response 物件（不等於成功，只是請求回來了）
+                const ct = res.headers.get('content-type') || ''; // 讀回應標頭的 Content-Type，沒有就用空字串避免 null
+                const body = ct.includes('application/json') ? await res.json() : await res.text(); // 判斷是哪一種形式
+                
+                if (!res.ok){ // 非 2xx（例如 400/401/500）都到這裡
+                    const err = new Error (`HTTP ${res.status}`); // 建一個 Error，訊息先放狀態碼
+                    err.status = res.status; // 把 HTTP 狀態碼掛在 Error 物件上，方便上層判斷
+                    err.payload = body; // 把伺服器的錯誤內容（JSON 或文字）也掛上去，別把細節丟掉
+                    throw err; // 丟給呼叫端的 try/catch 統一處理
+                }
+                return body  // 2xx 成功：直接回傳剛剛解析好的 body（通常是物件）
+            }
+                
+            form.addEventListener('submit', async function(e){
+                e.preventDefault();
+                msg.textContent = '';
+                const name = document.querySelector('#signup-name').value.trim();
+                const email = document.querySelector('#signup-email').value.trim();
+                const password = document.querySelector('#signup-pw-1').value;
+                const password_2 = document.querySelector('#signup-pw-2').value;
+                
+                if (!name || !email || !password || !password_2) return msg.textContent = "請輸入完整資訊";
+                if (password.length < 8) return msg.textContent = "密碼最少為8個字元";
+                if (password != password_2) return msg.textContent = "密碼確認失敗";
+
+                try {
+                    const body = await fetchData("/api/signup", {
+                        method: "POST",
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({name, email, password})
+                    });
+                    console.log(body);
+                    msg.textContent = `${body.message}`;
+                    if (body){
+                        const link = document.createElement('a');
+                        link.href = '/login';
+                        link.textContent = "前往登入"
+                        msg.append(link);
+                    }
+
+                } catch(e) {
+                    console.log(e, e.status, e.payload);
+                    msg.textContent = "發生錯誤";
+                }
+            });
+
+        </script>
     </body>
 </html>

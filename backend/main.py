@@ -6,10 +6,12 @@ from fastapi.responses import RedirectResponse
 import mysql.connector, os
 from mysql.connector import Error
 from .deps import get_conn, get_cur, get_current_user_id, DB_CONFIG
+from .routers import auth_router
 
 
 
 app = FastAPI()
+
 
 BASE_DIR = Path(__file__).resolve().parent
 ROOT_DIR = BASE_DIR.parent
@@ -18,7 +20,7 @@ BACKEND_STATIC = BASE_DIR / "static"
 TEMPLATES_DIR = BASE_DIR / "templates"
 
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
-
+app.include_router(auth_router.router)
 
 
 app.mount("/frontend", StaticFiles(directory=FRONTEND_DIR), name = "frontend")
