@@ -1,110 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="/frontend/assets/css/base.css">
-        <title>Login</title>
-    </head>
-    <body>
-        <header>
-            <div class="main-width">
-                <div class="flex header-2">
-                    <a id="base-left" href="/">
-                        <img id="shopme" src="/static/shopme.jpg">
-                    </a>
-                </div>
+{% extends "base-2.html" %}
+
+{% block title %} Signup {% endblock %}
+
+{% block main %}
+<main>
+    <div class="main-width">
+        <form id="form-signup">
+            <h2 class="flex">Signup</h2>
+            <div  class="flex mb-20">
+                姓名<input id="signup-name">
             </div>
-        </header>
-        <main>
-            <div class="main-width">
-                <form id="form-signup">
-                    <h2 class="flex">Signup</h2>
-                    <div  class="flex mb-20">
-                        姓名<input id="signup-name">
-                    </div>
-                    <div  class="flex mb-20">
-                        信箱<input id="signup-email">
-                    </div>
-                    <div  class="flex mb-20">
-                        密碼<input id="signup-pw-1">
-                    </div>
-                    <div  class="flex mb-20">
-                        密碼確認<input id="signup-pw-2">
-                    </div>
-                    <div  class="flex mb-20">
-                        <button type="submit" id="btn-signup">submit</button>
-                    </div>
-                    <div  class="flex mb-20" id="msg"></div>
-                </form>
+            <div  class="flex mb-20">
+                信箱<input id="signup-email">
             </div>
-        </main>
-        <script>
-            const form = document.querySelector('#form-signup');
-            const msg = document.querySelector('#msg');
+            <div  class="flex mb-20">
+                密碼<input id="signup-pw-1">
+            </div>
+            <div  class="flex mb-20">
+                密碼確認<input id="signup-pw-2">
+            </div>
+            <div  class="flex mb-20">
+                <button type="submit" id="btn-signup">註冊</button>
+            </div>
+            <div  class="flex mb-20" id="msg"></div>
+        </form>
+    </div>
+</main>
+<script src="/frontend/assets/js/pages/common.js"></script>
+<script src="/frontend/assets/js/pages/signup.js"></script>
 
-            async function fetchData(url, opts) {
-                const res = await fetch(url, opts); // 等待 fetch 完成，拿到 Response 物件（不等於成功，只是請求回來了）
-                const ct = res.headers.get('content-type') || ''; // 讀回應標頭的 Content-Type，沒有就用空字串避免 null
-                const body = ct.includes('application/json') ? await res.json() : await res.text(); // 判斷是哪一種形式
-                
-                if (!res.ok){ // 非 2xx（例如 400/401/500）都到這裡
-                    const err = new Error (`HTTP ${res.status}`); // 建一個 Error，訊息先放狀態碼
-                    err.status = res.status; // 把 HTTP 狀態碼掛在 Error 物件上，方便上層判斷
-                    err.payload = body; // 把伺服器的錯誤內容（JSON 或文字）也掛上去，別把細節丟掉
-                    throw err; // 丟給呼叫端的 try/catch 統一處理
-                }
-                return body  // 2xx 成功：直接回傳剛剛解析好的 body（通常是物件）
-            }
-                
-            form.addEventListener('submit', async function(e){
-                e.preventDefault();
-                msg.textContent = '';
-                const name = document.querySelector('#signup-name').value.trim();
-                const email = document.querySelector('#signup-email').value.trim();
-                const password = document.querySelector('#signup-pw-1').value;
-                const password_2 = document.querySelector('#signup-pw-2').value;
-                
-                if (!name || !email || !password || !password_2) return msg.textContent = "請輸入完整資訊";
-                if (password.length < 8) return msg.textContent = "密碼最少為8個字元";
-                if (password != password_2) return msg.textContent = "密碼確認失敗";
-
-                try {
-                    const body = await fetchData("/api/signup", {
-                        method: "POST",
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({name, email, password})
-                    });
-                    console.log(body);
-                    msg.textContent = `${body.message}`;
-                    if (body){
-                        const link = document.createElement('a');
-                        link.href = '/login';
-                        link.textContent = "前往登入"
-                        msg.append(link);
-                    }
-
-                } catch(e) {
-                    console.log("錯誤：", e);
-                    console.log("錯誤代碼：", e.status);
-                    console.log("錯誤body：", e.payload);
-                    const err_msg = 
-                    e?.payload?.detail ||                                // 後端若回 {detail:"..."} 優先顯示，沒有就往右
-                    (typeof e?.payload === 'string' ? e.payload : '') || // 如果e.payload是字串就回傳，不是就是''，空值就往右
-                    e?.message ||                                        // 退而求其次用 Error 物件訊息
-                    '發生錯誤';                                           // 最後保底
-                    msg.textContent = err_msg;
-                }
-                // 這裡的 ?. 是 Optional Chaining（選擇性鏈結） 操作符。功用是：
-                // e?.payload?.detail 會安全地取值：
-                // 若 e 是 null 或 undefined ⇒ 整個表達式直接回 undefined（不會丟 TypeError）。
-                // 否則看 e.payload，若也是 null/undefined ⇒ 回 undefined。
-                // 否則回 e.payload.detail 的值。
-                // 後面的 || 又在幹嘛？
-                // 當 e?.payload?.detail 拿不到值（是 undefined、null、''、0、false 等 falsy）時，就會用右邊的備援
-
-            });
-
-        </script>
-    </body>
-</html>
+{% endblock %}

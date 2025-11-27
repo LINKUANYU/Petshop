@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse, RedirectResponse
 from passlib.context import CryptContext
 from mysql.connector import Error, IntegrityError, errorcode
 from ..deps import get_conn, get_cur, get_current_user_id
-from ..schemas import SignupIn, AuthOut, UserOut
+from ..schemas import SignupIn, SignupOut
 
 # HTTPException
 # 用途：當發生業務錯誤或權限不足等情況，需要回 400/401/403/404/409/... 這類錯誤碼時使用。
@@ -11,8 +11,7 @@ from ..schemas import SignupIn, AuthOut, UserOut
 # 回傳格式（預設）：{"detail": <你給的 detail>}
 
 
-
-router = APIRouter(prefix="/api", tags=["auth"])
+router = APIRouter(prefix="/api")
 pw_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
 # -> str: means this function will return str
@@ -20,8 +19,8 @@ def hash_password(plain: str) -> str:
     return pw_context.hash(plain)
 
 
-@router.post("/signup", response_model= AuthOut)
-def signup(payload: SignupIn, request: Request, conn = Depends(get_conn)):
+@router.post("/signup", response_model = SignupOut)
+def signup(payload: SignupIn, conn = Depends(get_conn)):
     cur = conn.cursor(dictionary=True)
     try:
         email = payload.email.strip().lower()
@@ -40,7 +39,7 @@ def signup(payload: SignupIn, request: Request, conn = Depends(get_conn)):
         # last data's id
         user_id = cur.lastrowid
 
-        return AuthOut(ok = True, user = UserOut(id = user_id, email = email, name = name), message = "註冊成功，請重新登入->")
+        return SignupOut(ok = True, message = "註冊成功，請重新登入->")
     
     except IntegrityError as e:                       # 只攔「資料完整性」錯誤（例如 UNIQUE/FK）
         conn.rollback()                               # 這次交易全部撤回，避免半套資料/鎖卡住

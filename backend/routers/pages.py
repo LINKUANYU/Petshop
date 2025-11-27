@@ -11,25 +11,8 @@ router = APIRouter()
 
 PAGE_SIZE = 5
 @router.get("/")
-def home(
-    request: Request,
-    cur = Depends(get_cur)
-    ):
-
-    sql = f'''
-        SELECT p.id, p.name, p.main_image, MIN(v.price) AS price
-        FROM products p JOIN product_variants v ON p.id = v.product_id
-        WHERE p.is_active = 1 AND v.is_active = 1
-        GROUP BY p.id, p.name, p.main_image
-        ORDER BY p.id ASC
-        LIMIT %s
-        '''
-    # 執行sql
-    cur.execute(sql, (PAGE_SIZE,))
-    data = cur.fetchall()
-    
-    return templates.TemplateResponse("home.html", {"request": request, "data": data})
-
+def home(request: Request):
+    return templates.TemplateResponse("home.html", {"request": request})
 
 @router.get("/daily_discover")
 def daily_discover_page(
@@ -116,13 +99,9 @@ def ohoh(request: Request, msg: str):
     return templates.TemplateResponse("ohoh.html", {"request": request, "msg": msg})
 
 @router.get("/signup")
-def signup(
-    request: Request
-):
+def signup(request: Request):
     return templates.TemplateResponse("signup.html", {"request": request})
 
 @router.get("/login")
-def login(
-    request: Request
-):
+def login(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="/frontend/assets/css/base.css">
+        <title>{% block title %}{% endblock %}</title>
+    </head>
+    <body>
+        <header>
+            <div class="main-width">
+                <div class="flex header-2">
+                    <a id="base-left" href="/">
+                        <img id="shopme" src="/static/shopme.jpg">
+                    </a>
+                </div>
+            </div>
+        </header>
+        {% block main %}
+        {% endblock %}
+    </body>
+</html>

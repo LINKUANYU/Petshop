@@ -15,7 +15,6 @@ class UserOut(BaseModel):
     name: str
     email: EmailStr
 
-class AuthOut(BaseModel):
+class SignupOut(BaseModel):
     ok: bool
-    user: UserOut | None = None
     message: str | None = None

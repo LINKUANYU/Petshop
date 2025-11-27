@@ -12,7 +12,7 @@ UPDATE products p JOIN categories c ON p.category_id = c.id SET p.main_image = '
 cd petshop
 python3.12 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
+pip install -r backend/requirements.txt
 uvicorn backend.main:app --reload
 
 

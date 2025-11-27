@@ -3,5 +3,6 @@ uvicorn[standard]
 mysql-connector-python
 jinja2
 pydantic[email]
+# hash password
 passlib[bcrypt]
 argon2_cffi

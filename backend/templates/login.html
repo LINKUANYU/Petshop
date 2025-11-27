@@ -1,37 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="/frontend/assets/css/base.css">
-        <title>Login</title>
-    </head>
-    <body>
-        <header>
-            <div class="main-width">
-                <div class="flex header-2">
-                    <a id="base-left" href="/">
-                        <img id="shopme" src="/static/shopme.jpg">
-                    </a>
-                </div>
+{% extends "base-2.html" %}
+
+{% block title %} Login {% endblock %}
+
+{% block main %}
+<main>
+    <div class="main-width">
+        <form action="/api/login" method="post">
+            <h2 class="flex">Login</h2>
+            <div  class="flex mb-20">
+                信箱<input name="email">
             </div>
-        </header>
-        <main>
-            <div class="main-width">
-                <form action="/api/login" method="post">
-                    <h2 class="flex">Login</h2>
-                    <div  class="flex mb-20">
-                        信箱<input name="email">
-                    </div>
-                    <div  class="flex mb-20">
-                        密碼<input name="pw_1">
-                    </div>
-                    <div  class="flex mb-20">
-                        <button type="submit">submit</button>
-                    </div>
-                </form>
+            <div  class="flex mb-20">
+                密碼<input name="pw_1">
             </div>
-        </main>
-        <script></script>
-    </body>
-</html>
+            <div  class="flex mb-20">
+                <button type="submit">submit</button>
+            </div>
+        </form>
+    </div>
+</main>
+        
+{% endblock %}
