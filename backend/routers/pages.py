@@ -26,6 +26,11 @@ def signup_page(request: Request):
 def login_page(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
 
+@router.get("/logout")
+def logout(request: Request):
+    request.session.clear()
+    return RedirectResponse("/", status_code=303)
+
 @router.get("/daily_discover")
 def daily_discover_page(
     request: Request,

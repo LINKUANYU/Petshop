@@ -74,3 +74,5 @@ def login(request: Request, payload: LoginIn, cur = Depends(get_cur)):
     
     request.session["user_id"] = data["id"]
     return {"ok": True}
+
+
