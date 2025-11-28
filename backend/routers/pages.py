@@ -11,8 +11,20 @@ router = APIRouter()
 
 PAGE_SIZE = 5
 @router.get("/")
-def home(request: Request):
+def home_page(request: Request):
     return templates.TemplateResponse("home.html", {"request": request})
+
+@router.get("/ohoh")
+def ohoh_page(request: Request, msg: str):
+    return templates.TemplateResponse("ohoh.html", {"request": request, "msg": msg})
+
+@router.get("/signup")
+def signup_page(request: Request):
+    return templates.TemplateResponse("signup.html", {"request": request})
+
+@router.get("/login")
+def login_page(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request})
 
 @router.get("/daily_discover")
 def daily_discover_page(
@@ -94,14 +106,3 @@ def product(
         "variant": variant
         })
 
-@router.get("/ohoh")
-def ohoh(request: Request, msg: str):
-    return templates.TemplateResponse("ohoh.html", {"request": request, "msg": msg})
-
-@router.get("/signup")
-def signup(request: Request):
-    return templates.TemplateResponse("signup.html", {"request": request})
-
-@router.get("/login")
-def login(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request})

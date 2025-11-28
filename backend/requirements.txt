@@ -6,3 +6,5 @@ pydantic[email]
 # hash password
 passlib[bcrypt]
 argon2_cffi
+# session
+itsdangerous

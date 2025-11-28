@@ -10,11 +10,16 @@ class SignupIn(BaseModel):
     name: str = Field(min_length=1, max_length=100)
     password: str = Field(min_length=8, max_length=128)
 
+class SignupOut(BaseModel):
+    ok: bool
+    message: str | None = None
+
+class LoginIn(BaseModel):
+    email: EmailStr
+    password: str = Field(min_length=8, max_length=128)
+
 class UserOut(BaseModel):
     id: int
     name: str
     email: EmailStr
-
-class SignupOut(BaseModel):
-    ok: bool
     message: str | None = None

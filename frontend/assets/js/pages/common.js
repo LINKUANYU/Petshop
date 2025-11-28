@@ -19,7 +19,7 @@ function handle_api_error(e, options){
     options = options || {};
 
     let redirect_on_401;
-    if (options.redirect_on_401 === 'boolean'){
+    if (typeof options.redirect_on_401 === 'boolean'){
         redirect_on_401 = options.redirect_on_401;
     } else {
         redirect_on_401 = true;
@@ -30,10 +30,12 @@ function handle_api_error(e, options){
         return err_msg;
     }
     if (e.status === 401){
+        // 需轉跳首頁
         if (redirect_on_401){
             const err_msg = e?.payload?.detail || "請先登入";
             window.location.href = "/?msg=" + encodeURIComponent(err_msg);
-            return
+            return;
+        // 不需轉跳首頁(在首頁登入時發生錯誤)
         } else {
             const err_msg = e?.payload?.detail || "帳號或密碼輸入錯誤";
             return err_msg;

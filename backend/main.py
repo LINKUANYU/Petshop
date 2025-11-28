@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-import mysql.connector
+import mysql.connector, os
 from mysql.connector import Error
+from starlette.middleware.sessions import SessionMiddleware
 from .deps import DB_CONFIG
 from .routers import member, pages, product
 from .path import FRONTEND_DIR, BACKEND_STATIC
@@ -14,6 +15,14 @@ app.mount("/static", StaticFiles(directory=BACKEND_STATIC), name = "backend-stat
 app.include_router(member.router)
 app.include_router(pages.router)
 app.include_router(product.router)
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+app.add_middleware(
+    SessionMiddleware,
+    secret_key = SECRET_KEY,
+    same_site="lax",
+    https_only=False
+)
 
 # this is a decorator not a real route, it only execute once
 @app.on_event("startup")
