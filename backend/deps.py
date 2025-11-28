@@ -3,6 +3,7 @@ import mysql.connector
 from fastapi import Depends, Request
 from typing import Generator
 from dotenv import load_dotenv
+from fastapi.responses import RedirectResponse
 
 load_dotenv()
 DB_CONFIG = {
@@ -29,6 +30,9 @@ def get_cur(conn = Depends(get_conn)) -> Generator:
     finally:
         cur.close()
 
-def get_current_user_id(request: Request) -> int | None:
-    """（預留）從 session 取得目前登入使用者 id。沒有登入回 None。"""
-    return request.session.get("user_id")
+def login_check(request: Request):
+    """（預留）從 session 取得目前登入使用者 id。沒有登入回登入頁。"""
+    user_id = request.session.get("user_id")
+    if not user_id:
+        return RedirectResponse("/login", status_code=303)
+    return user_id

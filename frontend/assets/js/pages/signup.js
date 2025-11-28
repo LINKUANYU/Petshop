@@ -1,3 +1,6 @@
+// common.js
+import { fetch_data, handle_api_error} from "./common.js";
+
 // signup
 const form = document.querySelector('#form-signup');
 const msg = document.querySelector('#msg');

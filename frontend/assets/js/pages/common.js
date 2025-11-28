@@ -1,5 +1,5 @@
 // 送出API
-async function fetch_data(url, opts) {
+export async function fetch_data(url, opts) {
     const res = await fetch(url, opts); // 等待 fetch 完成，拿到 Response 物件（不等於成功，只是請求回來了）
     const ct = res.headers.get('content-type') || ''; // 讀回應標頭的 Content-Type，沒有就用空字串避免 null
     const body = ct.includes('application/json') ? await res.json() : await res.text(); // 判斷是哪一種形式
@@ -15,7 +15,7 @@ async function fetch_data(url, opts) {
 // 最後依照自己想表達的方式處理
 
 // 處理錯誤function
-function handle_api_error(e, options){
+export function handle_api_error(e, options){
     options = options || {};
 
     let redirect_on_401;
@@ -52,9 +52,29 @@ function handle_api_error(e, options){
     e?.message || "發生錯誤，稍後再試";
     return err_msg;
 }
+// get member inform
+export async function update_header(){
+    const signup = document.querySelector('#signup');
+    const login = document.querySelector('#login');
+    const user_name = document.querySelector('#user-name');
+    const logout = document.querySelector('#logout');
 
-window.fetch_data = fetch_data;
-window.handle_api_error = handle_api_error;
+    try{
+        const res = await fetch_data("/api/member");
+        // login already
+        if (res.ok){
+            signup.classList.add('hidden');
+            login.classList.add('hidden');
+            user_name.classList.remove('hidden');
+            logout.classList.remove('hidden');
+            user_name.textContent = res.user.name;
+        }
+    } catch (e){
+        const err_msg = handle_api_error(e);
+        console.log(err_msg);
+    }
+}
+
 
 // 這裡的 ?. 是 Optional Chaining（選擇性鏈結） 操作符。功用是：
 // e?.payload?.detail 會安全地取值：

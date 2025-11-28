@@ -1,3 +1,10 @@
+// common.js
+import { fetch_data } from "./common.js";
+import { handle_api_error } from "./common.js";
+import { update_header } from "./common.js";
+
+update_header();
+
 const main = document.querySelector('#product-list');
 
 (async function(){

@@ -1,3 +1,8 @@
+// common.js
+import { fetch_data, handle_api_error, update_header} from "./common.js";
+
+update_header();
+
 const price = document.querySelector("#price");
 const stock = document.querySelector("#stock");
 const var_btn = document.querySelectorAll(".var-btn");

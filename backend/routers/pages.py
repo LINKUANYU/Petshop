@@ -2,14 +2,14 @@ from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi import Request
 from fastapi import APIRouter, Depends, Request, Query
-from ..deps import get_conn, get_cur, get_current_user_id
+from ..deps import get_conn, get_cur, login_check
 from ..path import TEMPLATES_DIR
 
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
 router = APIRouter()
 
-PAGE_SIZE = 5
+
 @router.get("/")
 def home_page(request: Request):
     return templates.TemplateResponse("home.html", {"request": request})
@@ -31,12 +31,21 @@ def logout(request: Request):
     request.session.clear()
     return RedirectResponse("/", status_code=303)
 
+PAGE_SIZE = 5
 @router.get("/daily_discover")
 def daily_discover_page(
     request: Request,
     page_number: int = Query(1, ge=1),
-    cur = Depends(get_cur)
+    cur = Depends(get_cur),
     ):
+    # 檢查是否已登入，呼叫help function
+    result = login_check(request)
+    # instance(obj, SomeClass) , 用來判斷是不是某個class的實例
+    # instance("hello", str) -> True
+    if isinstance(result, RedirectResponse):
+        return result
+    # execute RedirectResopnse
+
     offset = (page_number - 1) * PAGE_SIZE
     
     total_sql = f'''
@@ -76,6 +85,10 @@ def product(
     id: int,
     cur = Depends(get_cur)
     ):
+    
+    result = login_check(request)
+    if isinstance(result, RedirectResponse):
+        return result
     
     product_sql = f'''
         SELECT 

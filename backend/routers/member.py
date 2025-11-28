@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, Request, HTTPException
 from passlib.context import CryptContext
 from mysql.connector import Error, IntegrityError, errorcode
-from ..deps import get_conn, get_cur, get_current_user_id
-from ..schemas import SignupIn, SignupOut, LoginIn, UserOut
+from ..deps import get_conn, get_cur
+from ..schemas import SignupIn, SignupOut, LoginIn
 
 # HTTPException
 # 用途：當發生業務錯誤或權限不足等情況，需要回 400/401/403/404/409/... 這類錯誤碼時使用。
@@ -75,4 +75,14 @@ def login(request: Request, payload: LoginIn, cur = Depends(get_cur)):
     request.session["user_id"] = data["id"]
     return {"ok": True}
 
+# member inform
+@router.get("/member")
+def get_member(request: Request, cur = Depends(get_cur)):
+    user_id = request.session.get("user_id")
+    if not user_id:
+        return {"ok": False}
+    cur.execute("SELECT id, name, email FROM members WHERE id = %s", (user_id,))
+    user = cur.fetchone()
+    return {"ok": True, "user": user}
+    
 
