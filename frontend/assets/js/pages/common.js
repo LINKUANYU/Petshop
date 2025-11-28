@@ -24,7 +24,7 @@ function handle_api_error(e, options){
     } else {
         redirect_on_401 = true;
     }
-
+    
     if (e.status === 400){
         const err_msg = e?.payload?.detail || "已存在email";
         return err_msg;

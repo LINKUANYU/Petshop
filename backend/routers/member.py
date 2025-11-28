@@ -20,7 +20,7 @@ def hash_password(plain: str) -> str:
 def verify_password(plain: str, hashed: str) -> bool:
     return pw_context.verify(plain, hashed)
 
-
+# signup
 @router.post("/signup", response_model = SignupOut)
 def signup(payload: SignupIn, conn = Depends(get_conn)):
     cur = conn.cursor(dictionary=True)
@@ -52,10 +52,10 @@ def signup(payload: SignupIn, conn = Depends(get_conn)):
 
     finally:
         cur.close()
-        
+
+# login
 @router.post("/login")
 def login(request: Request, payload: LoginIn, cur = Depends(get_cur)):
-    print("ok")
     email = payload.email.strip()
     pw = payload.password
     if not email or not pw:
@@ -66,6 +66,7 @@ def login(request: Request, payload: LoginIn, cur = Depends(get_cur)):
     cur.execute("SELECT id, email, name, password_hash " \
     "FROM members WHERE email = %s", (email,))
     data = cur.fetchone()
+    print("ok")
     if not data:
         raise HTTPException(status_code=401, detail="帳號或密碼輸入錯誤")
     if not verify_password(pw, data["password_hash"]):
