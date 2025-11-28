@@ -38,13 +38,14 @@ def daily_discover_page(
     page_number: int = Query(1, ge=1),
     cur = Depends(get_cur),
     ):
-    # 檢查是否已登入，呼叫help function
-    result = login_check(request)
-    # instance(obj, SomeClass) , 用來判斷是不是某個class的實例
-    # instance("hello", str) -> True
-    if isinstance(result, RedirectResponse):
-        return result
-    # execute RedirectResopnse
+    # 登入限制暫時註解掉
+    # # 檢查是否已登入，呼叫help function
+    # result = login_check(request)
+    # # instance(obj, SomeClass) , 用來判斷是不是某個class的實例
+    # # instance("hello", str) -> True
+    # if isinstance(result, RedirectResponse):
+    #     return result
+    # # execute RedirectResopnse
 
     offset = (page_number - 1) * PAGE_SIZE
     
@@ -85,10 +86,10 @@ def product(
     id: int,
     cur = Depends(get_cur)
     ):
-    
-    result = login_check(request)
-    if isinstance(result, RedirectResponse):
-        return result
+    # 登入限制暫時註解掉
+    # result = login_check(request)
+    # if isinstance(result, RedirectResponse):
+    #     return result
     
     product_sql = f'''
         SELECT 
